@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🌺 沖縄3日間 旅行プラン</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: linear-gradient(135deg,#FFF9F0 0%,#E8F4FD 50%,#F0F8FF 100%); min-height: 100vh; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  button { font-family: inherit; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const PLAN_DATA = {
+  days: [
+    {
+      day: 1, date: "6月5日 (金)", theme: "到着＆中部満喫day", emoji: "🌺",
+      schedule: [
+        { time: "09:25", spot: "那覇空港 着", duration: "—", fee: "—", note: "手荷物受け取り後、レンタカーバス乗り場14-Aへ", meal: null },
+        { time: "09:55", spot: "Sweetレンタカー借受", duration: "〜30分", fee: "込み済み", note: "免許証・ETC確認。カーナビセット", meal: null },
+        { time: "11:30", spot: "🏯 琉球村", duration: "2時間", fee: "大人2,000円", note: "エイサーや紅型体験も◎ 沖縄の原風景に浸れる", meal: "🍜 近くのA&Wで沖縄限定バーガーを昼食に" },
+        { time: "14:00", spot: "🌿 ビオスの丘", duration: "2時間", fee: "2,200円", note: "湖水ボートが絶品。17:30閉園注意！", meal: null },
+        { time: "16:10", spot: "🕳️ Cave Okinawa", duration: "1時間", fee: "1,200円", note: "鍾乳洞系の神秘体験。涼しくて夏場最高", meal: null },
+        { time: "17:20", spot: "📍 読谷村せなは6", duration: "〜1時間", fee: "—", note: "子供お迎え・実家訪問", meal: null },
+        { time: "18:30", spot: "🎡 アメリカンビレッジ", duration: "1時間", fee: "—", note: "観覧車バックに夕焼けが映える！夕食もここで", meal: "🌮 浜辺の茶屋 or デポアイランド周辺で夕食" },
+        { time: "19:30", spot: "🛒 サンエー 北谷店", duration: "30分", fee: "—", note: "地場スーパーで沖縄食材・泡盛をゲット", meal: null },
+        { time: "20:30", spot: "🏨 ホテルみゆきビーチ 着", duration: "—", fee: "—", note: "チェックイン。バルコニーから夜の海を", meal: null },
+      ],
+      detour: ["残波岬（読谷〜アメリカンビレッジ途中）：断崖絶壁×灯台の絶景", "やちむんの里（読谷村）：沖縄陶器の工房街、散策5分でも◎"],
+      hotel_tips: "早朝6時〜の無料展望大浴場から海を眺めるのが最高。夜は外のバルコニーで泡盛タイム🌙",
+    },
+    {
+      day: 2, date: "6月6日 (土)", theme: "北部＆実家訪問day", emoji: "🐠",
+      schedule: [
+        { time: "07:00", spot: "🌅 ホテル発", duration: "—", fee: "—", note: "早出推奨！土曜は美ら海が混みます", meal: "朝食はホテル近くのコンビニ or 車内で軽く" },
+        { time: "08:30", spot: "🐋 美ら海水族館", duration: "3時間", fee: "大人2,180円", note: "ジンベイザメの給餌タイム(8:30〜)狙い目！予約不要", meal: "🍱 館内の海辺のレストラン「イノー」で昼食" },
+        { time: "12:00", spot: "🌺 備瀬のフクギ並木", duration: "30分", fee: "無料", note: "美ら海から徒歩圏。緑のトンネルが幻想的", meal: null },
+        { time: "13:00", spot: "❤️ ハートロック（恋人岬）", duration: "20分", fee: "無料", note: "干潮時にハート型の岩が現れる。潮位確認推奨", meal: null },
+        { time: "14:30", spot: "🍍 パイナップルパーク", duration: "3時間", fee: "大人1,200円", note: "パイナップルカートが人気。お土産も充実", meal: null },
+        { time: "18:00", spot: "📍 読谷村せなは6", duration: "〜2時間", fee: "—", note: "実家訪問。夕食をご馳走になれると◎", meal: null },
+        { time: "20:30", spot: "🏨 ホテルみゆきビーチ 着", duration: "—", fee: "—", note: "荷物はホテルにあるのでそのまま就寝", meal: null },
+      ],
+      detour: ["今帰仁城跡（美ら海の帰り道）：世界遺産の城址、夕暮れが絶景", "道の駅 許田（やんばる市場）：北部の名産品が揃う、帰り道に◎"],
+      hotel_tips: "翌朝は最終日なので、荷造りを夜のうちに済ませておくと楽🧳",
+    },
+    {
+      day: 3, date: "6月7日 (日)", theme: "南部観光＆帰路day", emoji: "🦋",
+      schedule: [
+        { time: "08:00", spot: "🏨 ホテル チェックアウト", duration: "—", fee: "—", note: "荷物をトランクへ。忘れ物チェック！", meal: "朝食はホテル近くで軽く済ませて早めに出発" },
+        { time: "09:30", spot: "🌋 おきなわワールド・玉泉洞", duration: "2.5時間", fee: "大人2,000円", note: "全長5kmの鍾乳洞が圧巻。ハブショーも面白い", meal: null },
+        { time: "12:30", spot: "🛍️ 国際通り", duration: "2時間", fee: "—", note: "最後のお土産タイム。牧志公設市場も近い", meal: "🥩 うちなー食堂で沖縄そば or ゴーヤチャンプルー定食" },
+        { time: "14:30", spot: "🚗 国際通り 出発", duration: "—", fee: "—", note: "19:10返却に余裕を持って移動開始", meal: null },
+        { time: "15:00", spot: "⛩️ 首里城", duration: "1時間", fee: "大人400円", note: "国際通りから車で10分。復元工事中だが見応えあり", meal: null },
+        { time: "18:30", spot: "🚗 Sweetレンタカー返却", duration: "—", fee: "—", note: "19:10返却期限。送迎バスで空港へ（約30分）", meal: null },
+        { time: "20:40", spot: "✈️ 那覇空港 出発", duration: "—", fee: "—", note: "羽田23:00着。お疲れさまでした！", meal: null },
+      ],
+      detour: ["ひめゆりの塔（おきなわワールド近く）：歴史を学ぶ5分立ち寄り", "新垣ちんすこう本舗（国際通り）：できたてちんすこうが買える"],
+      hotel_tips: null,
+    },
+  ],
+  june_tips: [
+    "☀️ 6月は梅雨明け直後！エメラルドの海が最もきれいな季節",
+    "🥭 マンゴー・パイナップルが旬。地場スーパーで買うのが一番安い",
+    "🌊 海水温が上がり始め、シュノーケルも快適に。ホテル前のビーチで朝活も◎",
+    "🌸 梅雨の晴れ間は蒸し暑い。日焼け止め・水分補給を忘れずに",
+  ],
+  kokusaidori_must: [
+    "🍬 御菓子御殿のちんすこう・紅芋タルト（定番中の定番）",
+    "🥃 泡盛の試飲ができる酒屋で地元銘柄をゲット",
+    "🐷 牧志公設市場で沖縄食材を見学（豚の顔まるごと売ってる！）",
+    "🌺 むつみ橋通りの地元食堂で本場の沖縄そばを",
+  ],
+  cautions: [
+    "🚗 沖縄の渋滞は読めない。特に国道58号は土日要注意",
+    "☀️ 紫外線が本州の約1.5倍。日焼け止めは必携",
+    "🐍 ハブに注意。草むらや石の隙間には手を入れない",
+    "⛽ ガソリンスタンドは内地より少ない。返却前に給油を忘れずに",
+    "🌊 遊泳は指定ビーチで。離岸流が発生しやすいエリアあり",
+  ],
+  top_pick: {
+    spot: "美ら海水族館（早朝8:30〜）",
+    reason: "ジンベイザメの給餌タイムは8:30から。土曜の混雑前に入れる上、直後に備瀬のフクギ並木と組み合わせると北部観光が完璧に完結。この旅で最も「来てよかった」と思える体験になるはず。",
+  },
+  costs: {
+    fixed: [
+      { label: "✈️ 往復航空券（3名）", note: "ANA パック込み" },
+      { label: "🏨 ホテル2泊（1室）", note: "ホテルみゆきビーチ 素泊まり" },
+      { label: "🚗 レンタカー（2泊3日）", note: "Sweetレンタカー 免責込み" },
+    ],
+    admission: [
+      { label: "🏯 琉球村", per: 2000, note: "大人1名" },
+      { label: "🌿 ビオスの丘", per: 2200, note: "大人1名" },
+      { label: "🕳️ Cave Okinawa", per: 1200, note: "大人1名" },
+      { label: "🐋 美ら海水族館", per: 2180, note: "大人1名" },
+      { label: "🍍 パイナップルパーク", per: 1200, note: "大人1名" },
+      { label: "🌋 おきなわワールド", per: 2000, note: "大人1名" },
+      { label: "⛩️ 首里城", per: 400, note: "大人1名" },
+    ],
+    meals: [
+      { label: "🍜 昼食（1日目）", note: "A&W など", min: 800, max: 1500 },
+      { label: "🌮 夕食（1日目）", note: "アメリカンビレッジ周辺", min: 1500, max: 3000 },
+      { label: "🍱 昼食（2日目）", note: "美ら海 館内レストラン", min: 1200, max: 2000 },
+      { label: "🥩 昼食（3日目）", note: "国際通り 沖縄そば等", min: 800, max: 1500 },
+    ],
+    other: [
+      { label: "⛽ ガソリン代（3日分）", note: "約150km想定", min: 2000, max: 3000 },
+      { label: "🛍️ お土産代", note: "国際通り・スーパー等", min: 3000, max: 10000 },
+      { label: "🛒 スーパー（食材・飲み物）", note: "サンエー等", min: 1000, max: 3000 },
+      { label: "🅿️ 駐車場", note: "各スポット（無料多め）", min: 0, max: 1000 },
+    ],
+  },
+};
+
+const colors = {
+  1: { main: "#FF6B6B", light: "#FFF0F0", accent: "#FF3D3D" },
+  2: { main: "#4ECDC4", light: "#E8FFFE", accent: "#00A99D" },
+  3: { main: "#A78BFA", light: "#F5F0FF", accent: "#7C3AED" },
+};
+
+function App() {
+  const [activeDay, setActiveDay] = useState(1);
+  const [activeTab, setActiveTab] = useState("plan");
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => { setTimeout(() => setLoaded(true), 100); }, []);
+
+  const day = PLAN_DATA.days[activeDay - 1];
+  const c = colors[activeDay];
+
+  const admissionTotal3 = PLAN_DATA.costs.admission.reduce((s,i) => s + i.per * 3, 0);
+  const mealMin = PLAN_DATA.costs.meals.reduce((s,i) => s + i.min * 3, 0);
+  const mealMax = PLAN_DATA.costs.meals.reduce((s,i) => s + i.max * 3, 0);
+  const otherMin = PLAN_DATA.costs.other.reduce((s,i) => s + i.min, 0);
+  const otherMax = PLAN_DATA.costs.other.reduce((s,i) => s + i.max, 0);
+  const totalMin = admissionTotal3 + mealMin + otherMin;
+  const totalMax = admissionTotal3 + mealMax + otherMax;
+
+  const s = (obj) => Object.assign({}, obj);
+
+  return (
+    <div style={{fontFamily:"'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif",background:"linear-gradient(135deg,#FFF9F0 0%,#E8F4FD 50%,#F0F8FF 100%)",minHeight:"100vh",paddingBottom:40,opacity:loaded?1:0,transition:"opacity 0.6s ease"}}>
+      {/* Header */}
+      <div style={{background:`linear-gradient(135deg,${c.main} 0%,${c.accent} 100%)`,padding:"32px 20px 0",textAlign:"center",position:"relative",overflow:"hidden"}}>
+        <div style={{color:"#fff",fontSize:13,letterSpacing:4,fontWeight:600,opacity:0.9,marginBottom:4}}>2026.06.05 - 06.07</div>
+        <h1 style={{color:"#fff",fontSize:26,fontWeight:900,margin:"0 0 4px",textShadow:"0 2px 8px rgba(0,0,0,0.2)"}}>🌺 沖縄3日間 旅行プラン</h1>
+        <div style={{color:"rgba(255,255,255,0.9)",fontSize:13,marginBottom:16}}>大人3名 · ホテルみゆきビーチ · レンタカー旅</div>
+        <div style={{display:"flex",justifyContent:"center",gap:6,paddingBottom:0,flexWrap:"wrap"}}>
+          {PLAN_DATA.days.map(d => (
+            <button key={d.day} onClick={() => { setActiveDay(d.day); setActiveTab("plan"); }} style={{background:activeTab==="plan"&&activeDay===d.day?"#fff":"rgba(255,255,255,0.25)",color:activeTab==="plan"&&activeDay===d.day?c.main:"#fff",border:"none",borderRadius:"14px 14px 0 0",padding:"9px 14px 13px",fontWeight:700,fontSize:13,cursor:"pointer",transition:"all 0.2s"}}>
+              {d.emoji} Day{d.day}<br/><span style={{fontSize:11,fontWeight:400}}>{d.date}</span>
+            </button>
+          ))}
+          <button onClick={() => setActiveTab("cost")} style={{background:activeTab==="cost"?"#fff":"rgba(255,255,255,0.25)",color:activeTab==="cost"?"#FF8C00":"#fff",border:"none",borderRadius:"14px 14px 0 0",padding:"9px 14px 13px",fontWeight:700,fontSize:13,cursor:"pointer",transition:"all 0.2s"}}>
+            💰 費用<br/><span style={{fontSize:11,fontWeight:400}}>目安</span>
+          </button>
+        </div>
+      </div>
+
+      <div style={{maxWidth:640,margin:"0 auto",padding:"0 16px"}}>
+
+        {/* COST TAB */}
+        {activeTab === "cost" && (
+          <div style={{animation:"fadeIn 0.3s ease"}}>
+            <div style={{background:"linear-gradient(135deg,#FFF8E1,#FFF3CD)",border:"2px solid #FFB300",borderRadius:"0 0 16px 16px",padding:"12px 20px",marginBottom:20,display:"flex",alignItems:"center",gap:10}}>
+              <span style={{fontSize:24}}>💰</span>
+              <div>
+                <div style={{fontSize:11,color:"#FF8C00",fontWeight:700,letterSpacing:2}}>BUDGET GUIDE</div>
+                <div style={{fontSize:16,fontWeight:800,color:"#333"}}>3名分の参考費用まとめ</div>
+              </div>
+            </div>
+            <div style={{background:"linear-gradient(135deg,#FF8C00,#FFB300)",borderRadius:16,padding:"20px",marginBottom:20,boxShadow:"0 4px 20px rgba(255,140,0,0.3)",textAlign:"center"}}>
+              <div style={{color:"rgba(255,255,255,0.85)",fontSize:12,letterSpacing:2,fontWeight:600}}>現地での追加費用（3名合計）</div>
+              <div style={{color:"#fff",fontSize:30,fontWeight:900,margin:"4px 0"}}>¥{totalMin.toLocaleString()} 〜 ¥{totalMax.toLocaleString()}</div>
+              <div style={{color:"rgba(255,255,255,0.8)",fontSize:12}}>※航空券・ホテル・レンタカーはパック済み</div>
+            </div>
+            {/* Fixed */}
+            <div style={{background:"#fff",borderRadius:16,padding:"16px",marginBottom:14,boxShadow:"0 2px 12px rgba(0,0,0,0.06)"}}>
+              <h3 style={{fontSize:13,fontWeight:800,color:"#4CAF50",letterSpacing:2,marginBottom:12}}>✅ パック込み（追加費用なし）</h3>
+              {PLAN_DATA.costs.fixed.map((item,i) => (
+                <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:i<PLAN_DATA.costs.fixed.length-1?"1px solid #f5f5f5":"none"}}>
+                  <div><div style={{fontSize:13,fontWeight:600,color:"#333"}}>{item.label}</div><div style={{fontSize:11,color:"#888"}}>{item.note}</div></div>
+                  <div style={{fontSize:13,fontWeight:700,color:"#4CAF50",background:"#F1F8E9",padding:"4px 10px",borderRadius:20}}>込み済み</div>
+                </div>
+              ))}
+            </div>
+            {/* Admission */}
+            <div style={{background:"#fff",borderRadius:16,padding:"16px",marginBottom:14,boxShadow:"0 2px 12px rgba(0,0,0,0.06)"}}>
+              <h3 style={{fontSize:13,fontWeight:800,color:"#FF6B6B",letterSpacing:2,marginBottom:4}}>🎟️ 入場料（3名合計）</h3>
+              <div style={{fontSize:11,color:"#999",marginBottom:12}}>※1名あたりの料金 × 3名で計算</div>
+              {PLAN_DATA.costs.admission.map((item,i) => (
+                <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:i<PLAN_DATA.costs.admission.length-1?"1px solid #f5f5f5":"none"}}>
+                  <div><div style={{fontSize:13,fontWeight:600,color:"#333"}}>{item.label}</div><div style={{fontSize:11,color:"#888"}}>{item.per.toLocaleString()}円/人</div></div>
+                  <div style={{fontSize:14,fontWeight:700,color:"#FF6B6B"}}>¥{(item.per*3).toLocaleString()}</div>
+                </div>
+              ))}
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:10,paddingTop:10,borderTop:"2px solid #FF6B6B30"}}>
+                <div style={{fontSize:13,fontWeight:800,color:"#FF6B6B"}}>入場料 合計</div>
+                <div style={{fontSize:16,fontWeight:900,color:"#FF6B6B"}}>¥{admissionTotal3.toLocaleString()}</div>
+              </div>
+            </div>
+            {/* Meals */}
+            <div style={{background:"#fff",borderRadius:16,padding:"16px",marginBottom:14,boxShadow:"0 2px 12px rgba(0,0,0,0.06)"}}>
+              <h3 style={{fontSize:13,fontWeight:800,color:"#FF8C00",letterSpacing:2,marginBottom:4}}>🍽️ 食事代（3名合計）</h3>
+              <div style={{fontSize:11,color:"#999",marginBottom:12}}>※2日目夕食は実家でご馳走になる想定で除外</div>
+              {PLAN_DATA.costs.meals.map((item,i) => (
+                <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:i<PLAN_DATA.costs.meals.length-1?"1px solid #f5f5f5":"none"}}>
+                  <div><div style={{fontSize:13,fontWeight:600,color:"#333"}}>{item.label}</div><div style={{fontSize:11,color:"#888"}}>{item.note}（1人{item.min.toLocaleString()}〜{item.max.toLocaleString()}円）</div></div>
+                  <div style={{fontSize:12,fontWeight:700,color:"#FF8C00",textAlign:"right"}}>¥{(item.min*3).toLocaleString()}〜<br/>¥{(item.max*3).toLocaleString()}</div>
+                </div>
+              ))}
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:10,paddingTop:10,borderTop:"2px solid #FF8C0020"}}>
+                <div style={{fontSize:13,fontWeight:800,color:"#FF8C00"}}>食事代 合計</div>
+                <div style={{fontSize:13,fontWeight:900,color:"#FF8C00"}}>¥{mealMin.toLocaleString()}〜¥{mealMax.toLocaleString()}</div>
+              </div>
+            </div>
+            {/* Other */}
+            <div style={{background:"#fff",borderRadius:16,padding:"16px",marginBottom:14,boxShadow:"0 2px 12px rgba(0,0,0,0.06)"}}>
+              <h3 style={{fontSize:13,fontWeight:800,color:"#4ECDC4",letterSpacing:2,marginBottom:12}}>🗂️ その他費用</h3>
+              {PLAN_DATA.costs.other.map((item,i) => (
+                <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:i<PLAN_DATA.costs.other.length-1?"1px solid #f5f5f5":"none"}}>
+                  <div><div style={{fontSize:13,fontWeight:600,color:"#333"}}>{item.label}</div><div style={{fontSize:11,color:"#888"}}>{item.note}</div></div>
+                  <div style={{fontSize:13,fontWeight:700,color:"#4ECDC4"}}>{item.min===item.max?`¥${item.min.toLocaleString()}`:`¥${item.min.toLocaleString()}〜¥${item.max.toLocaleString()}`}</div>
+                </div>
+              ))}
+            </div>
+            {/* Tips */}
+            <div style={{background:"linear-gradient(135deg,#E8F5E9,#F1F8E9)",borderRadius:16,padding:"16px",marginBottom:20,border:"1.5px solid #81C78440"}}>
+              <h3 style={{fontSize:13,fontWeight:800,color:"#2E7D32",letterSpacing:2,marginBottom:10}}>💡 節約Tips</h3>
+              {["🎟️ 美ら海水族館はじゃらん等の割引クーポンで1割引になることも","🥭 フルーツはスーパーで買うと市場の半額以下","⛽ ガソリンはレンタカー返却前に満タン。空港近くは割高なので要注意","🍜 沖縄そばは地元食堂なら700〜900円。観光地は1,200円〜","🛍️ お土産はスーパーが最安。ちんすこうは業務用パックがお得"].map((t,i,a) => (
+                <div key={i} style={{fontSize:13,color:"#444",padding:"5px 0",lineHeight:1.6,borderBottom:i<a.length-1?"1px solid #C8E6C940":"none"}}>{t}</div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* PLAN TAB */}
+        {activeTab === "plan" && (
+          <>
+            {/* Theme */}
+            <div style={{background:c.light,border:`2px solid ${c.main}`,borderRadius:"0 0 16px 16px",padding:"12px 20px",marginBottom:20,display:"flex",alignItems:"center",gap:10}}>
+              <span style={{fontSize:24}}>{day.emoji}</span>
+              <div>
+                <div style={{fontSize:11,color:c.main,fontWeight:700,letterSpacing:2}}>DAY {day.day} THEME</div>
+                <div style={{fontSize:16,fontWeight:800,color:"#333"}}>{day.theme}</div>
+              </div>
+            </div>
+            {/* Schedule */}
+            <div style={{marginBottom:24}}>
+              <h2 style={{fontSize:14,fontWeight:800,color:c.main,letterSpacing:2,marginBottom:12}}>🕐 タイムスケジュール</h2>
+              <div style={{position:"relative"}}>
+                <div style={{position:"absolute",left:42,top:0,bottom:0,width:2,background:`${c.main}30`}}/>
+                {day.schedule.map((item,i) => (
+                  <div key={i} style={{display:"flex",gap:12,marginBottom:12,animation:`fadeIn 0.4s ease ${i*0.05}s both`}}>
+                    <div style={{minWidth:60,textAlign:"right",fontSize:12,fontWeight:700,color:c.main,paddingTop:12}}>{item.time}</div>
+                    <div style={{width:16,height:16,borderRadius:"50%",background:item.meal?"#FFD700":c.main,border:"3px solid #fff",boxShadow:`0 0 0 2px ${c.main}`,marginTop:10,flexShrink:0,zIndex:1}}/>
+                    <div style={{background:"#fff",borderRadius:12,padding:"10px 14px",flex:1,boxShadow:"0 2px 8px rgba(0,0,0,0.06)",border:`1px solid ${c.main}20`}}>
+                      <div style={{fontWeight:700,fontSize:14,color:"#222"}}>{item.spot}</div>
+                      <div style={{display:"flex",gap:8,flexWrap:"wrap",margin:"4px 0"}}>
+                        {item.duration!=="—"&&<span style={{fontSize:11,background:c.light,color:c.main,padding:"2px 8px",borderRadius:20,fontWeight:600}}>⏱ {item.duration}</span>}
+                        {item.fee!=="—"&&<span style={{fontSize:11,background:"#FFF8E1",color:"#E65100",padding:"2px 8px",borderRadius:20,fontWeight:600}}>💰 {item.fee}</span>}
+                      </div>
+                      <div style={{fontSize:12,color:"#555",lineHeight:1.5}}>{item.note}</div>
+                      {item.meal&&<div style={{fontSize:12,color:"#FF8C00",marginTop:6,background:"#FFF8E1",padding:"6px 10px",borderRadius:8,fontWeight:600}}>{item.meal}</div>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Detour */}
+            <div style={{background:"#fff",borderRadius:16,padding:"16px",marginBottom:16,boxShadow:"0 2px 12px rgba(0,0,0,0.06)"}}>
+              <h3 style={{fontSize:13,fontWeight:800,color:c.main,letterSpacing:2,marginBottom:10}}>🗺️ ルート沿いのおすすめ立ち寄り</h3>
+              {day.detour.map((d,i) => (
+                <div key={i} style={{fontSize:13,color:"#444",padding:"6px 0",borderBottom:i<day.detour.length-1?"1px solid #f0f0f0":"none",lineHeight:1.6}}>✨ {d}</div>
+              ))}
+            </div>
+            {/* Hotel tips */}
+            {day.hotel_tips&&(
+              <div style={{background:`linear-gradient(135deg,${c.light},#fff)`,border:`1.5px solid ${c.main}40`,borderRadius:16,padding:"16px",marginBottom:16}}>
+                <h3 style={{fontSize:13,fontWeight:800,color:c.main,letterSpacing:2,marginBottom:8}}>🏨 ホテル周辺Tips</h3>
+                <p style={{fontSize:13,color:"#444",lineHeight:1.7,margin:0}}>{day.hotel_tips}</p>
+              </div>
+            )}
+            {/* Day3 extras */}
+            {activeDay===3&&(
+              <>
+                <div style={{background:"linear-gradient(135deg,#FFF3E0,#FFF9C4)",borderRadius:16,padding:"16px",marginBottom:16,boxShadow:"0 2px 12px rgba(0,0,0,0.06)"}}>
+                  <h3 style={{fontSize:13,fontWeight:800,color:"#E65100",letterSpacing:2,marginBottom:10}}>🌺 6月沖縄のポイント</h3>
+                  {PLAN_DATA.june_tips.map((t,i)=><div key={i} style={{fontSize:13,color:"#444",padding:"5px 0",lineHeight:1.6}}>{t}</div>)}
+                </div>
+                <div style={{background:"linear-gradient(135deg,#F3E5F5,#FCE4EC)",borderRadius:16,padding:"16px",marginBottom:16,boxShadow:"0 2px 12px rgba(0,0,0,0.06)"}}>
+                  <h3 style={{fontSize:13,fontWeight:800,color:"#7B1FA2",letterSpacing:2,marginBottom:10}}>🛍️ 国際通りで外せない</h3>
+                  {PLAN_DATA.kokusaidori_must.map((t,i)=><div key={i} style={{fontSize:13,color:"#444",padding:"5px 0",lineHeight:1.6}}>{t}</div>)}
+                </div>
+                <div style={{background:"linear-gradient(135deg,#FFEBEE,#FFF3E0)",borderRadius:16,padding:"16px",marginBottom:16,boxShadow:"0 2px 12px rgba(0,0,0,0.06)"}}>
+                  <h3 style={{fontSize:13,fontWeight:800,color:"#C62828",letterSpacing:2,marginBottom:10}}>⚠️ 注意事項</h3>
+                  {PLAN_DATA.cautions.map((t,i)=><div key={i} style={{fontSize:13,color:"#444",padding:"5px 0",lineHeight:1.6}}>{t}</div>)}
+                </div>
+                <div style={{background:"linear-gradient(135deg,#4ECDC4,#2196F3)",borderRadius:16,padding:"20px",marginBottom:16,boxShadow:"0 4px 20px rgba(78,205,196,0.3)"}}>
+                  <h3 style={{fontSize:13,fontWeight:800,color:"rgba(255,255,255,0.9)",letterSpacing:2,marginBottom:8}}>🏆 この旅のイチ押し</h3>
+                  <div style={{fontSize:16,fontWeight:900,color:"#fff",marginBottom:8}}>{PLAN_DATA.top_pick.spot}</div>
+                  <div style={{fontSize:13,color:"rgba(255,255,255,0.9)",lineHeight:1.7}}>{PLAN_DATA.top_pick.reason}</div>
+                </div>
+              </>
+            )}
+            {activeDay!==3&&<div style={{textAlign:"center",fontSize:13,color:"#999",padding:"8px 0"}}>💡 6月のTips・国際通り情報・注意事項はDay3タブで確認できます</div>}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
