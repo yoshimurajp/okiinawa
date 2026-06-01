@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌺 沖縄3日間 旅行プラン</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        :root {
+            --primary: #ff6b6b;
+            --primary-bg: #fff5f5;
+            --secondary: #4dadf7;
+            --text: #2c2e33;
+            --shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #ffe3e3 0%, #dbe4ff 100%);
+            color: var(--text);
+            margin: 0;
+            padding: 20px 10px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+        h2 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+        }
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 20px;
+            background: #eee;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+        .sub-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .sub-btn {
+            padding: 6px 14px;
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .sub-btn.active {
+            background: #e6f7ff;
+            border-color: var(--secondary);
+            color: var(--secondary);
+            font-weight: bold;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .time-line {
+            border-left: 3px solid #ffd8a8;
+            padding-left: 20px;
+            margin-left: 10px;
+        }
+        .time-item {
+            position: relative;
+            margin-bottom: 25px;
+        }
+        .time-item::before {
+            content: '';
+            position: absolute;
+            left: -27px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ff922b;
+        }
+        .time {
+            font-weight: bold;
+            color: #ff922b;
+            font-size: 0.95rem;
+        }
+        .spot {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin: 2px 0;
+        }
+        .memo {
+            font-size: 0.9rem;
+            color: #555;
+        }
+        #map {
+            width: 100%;
+            height: 450px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            margin-top: 10px;
+        }
+        .cost-card {
+            background: linear-gradient(135deg, #ff922b, #ff6b6b);
+            color: white;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .cost-main {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        .cost-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .cost-table th, .cost-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .cost-table td:last-child {
+            text-align: right;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div style="text-align:center; font-size:0.8rem; color:#888;">2026.06.05 - 06.07</div>
+    <h2>🌺 沖縄3日間 旅行プラン</h2>
+    <div class="subtitle">大人3名 · ホテルみゆきビーチ · レンタカー旅</div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchDay(1)">🌺 Day 1 6/5(金)</button>
+        <button class="tab-btn" onclick="switchDay(2)">🐠 Day 2 6/6(土)</button>
+        <button class="tab-btn" onclick="switchDay(3)">🦋 Day 3 6/7(日)</button>
+    </div>
+
+    <div class="sub-tabs">
+        <button class="sub-btn active" id="btn-sche" onclick="switchMode('sche')">📋 スケジュール</button>
+        <button class="sub-btn" id="btn-map" onclick="switchMode('map')">🗺️ 地図</button>
+        <button class="sub-btn" id="btn-cost" onclick="switchMode('cost')">💰 費用</button>
+    </div>
+
+    <div id="sec-sche" class="content-section active">
+        <div id="day1-sche" class="day-content">
+            <h3 style="text-align:center; color:#ff922b;">🌺 DAY 1: 到着＆中部満喫</h3>
+            <div class="time-line">
+                <div class="time-item"><div class="time">09:25</div><div class="spot">那覇空港 着</div><div class="memo">手荷物受け取り後、レンタカーバス乗り場へ</div></div>
+                <div class="time-item"><div class="time">09:55</div><div class="spot">Sweetレンタカー借受</div><div class="memo">ナビをセットして出発！</div></div>
+                <div class="time-item"><div class="time">11:30</div><div class="spot">🏯 琉球村</div><div class="memo">沖縄の原風景を体験。近くのA&Wでランチ🍔</div></div>
+                <div class="time-item"><div class="time">14:00</div><div class="spot">🌿 ビオスの丘</div><div class="memo">湖水ボートがおすすめ（17:30閉園）</div></div>
+                <div class="time-item"><div class="time">16:10</div><div class="spot">🕳️ Cave Okinawa</div><div class="memo">神秘的な鍾乳洞体験。ひんやり涼しい空間</div></div>
+                <div class="time-item"><div class="time">18:30</div><div class="spot">🎡 アメリカンビレッジ</div><div class="memo">夕焼けが綺麗！周辺でタコスなどの夕食🌮</div></div>
+                <div class="time-item"><div class="time">20:30</div><div class="spot">🏨 ホテルみゆきビーチ</div><div class="memo">チェックイン。バルコニーで波の音を聴きながらのんびり</div></div>
+            </div>
+        </div>
+        <div id="day2-sche" class="day-content" style="display:none;">
+            <h3 style="text-align:center; color:#4dadf7;">🐠 DAY 2: 北部王道ルート</h3>
+            <div class="time-line">
+                <div class="time-item"><div class="time">09:00</div><div class="spot">ホテル出発</div><div class="memo">58号線を北上して美ら海へ</div></div>
+                <div class="time-item"><div class="time">10:00</div><div class="spot">🐋 美ら海水族館</div><div class="memo">黒潮の海大水槽、オキちゃん劇場（イルカショー）は必見！</div></div>
+                <div class="time-item"><div class="time">13:30</div><div class="spot">🍍 ナゴパイナップルパーク</div><div class="memo">可愛い自動カートで園内を周遊</div></div>
+                <div class="time-item"><div class="time">15:30</div><div class="spot">🍦 道の駅 許田</div><div class="memo">大人気のサーターアンダギーや天ぷらでおやつタイム</div></div>
+                <div class="time-item"><div class="time">18:00</div><div class="spot">実家訪問</div><div class="memo">みんなでお喋りしながら夜ご飯をご馳走になる想定🏠</div></div>
+            </div>
+        </div>
+        <div id="day3-sche" class="day-content" style="display:none;">
+            <h3 style="text-align:center; color:#22b8cf;">🦋 DAY 3: 南部巡り＆国際通り</h3>
+            <div class="time-line">
+                <div class="time-item"><div class="time">09:00</div><div class="spot">チェックアウト</div><div class="memo">南部へ向けて出発</div></div>
+                <div class="time-item"><div class="time">10:10</div><div class="spot">🌋 おきなわワールド</div><div class="memo">国内最大級の鍾乳洞「玉泉洞」とスーパーエイサー</div></div>
+                <div class="time-item"><div class="time">13:00</div><div class="spot">⛩️ 首里城公園</div><div class="memo">復興中の正殿を見学。沖縄の歴史を感じる</div></div>
+                <div class="time-item"><div class="time">14:30</div><div class="spot">🛍️ 国際通り</div><div class="memo">お土産探しと、遅めのランチに沖縄そばを🍜</div></div>
+                <div class="time-item"><div class="time">17:00</div><div class="spot">レンタカー返却＆那覇空港</div><div class="memo">ガソリンを満タンにして返却。空港でお土産の最終チェック</div></div>
+                <div class="time-item"><div class="time">19:40</div><div class="spot">那覇空港 フライト</div><div class="memo">思い出いっぱいで帰路へ便✈️</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="sec-map" class="content-section">
+        <div id="map"></div>
+    </div>
+
+    <div id="sec-cost" class="content-section">
+        <div class="cost-card">
+            <div>現地での追加費用（3名合計目安）</div>
+            <div class="cost-main">¥52,440 〜 ¥74,540</div>
+            <div style="font-size:0.8rem; opacity:0.9;">※航空券・ホテル・レンタカーはパック込み済み</div>
+        </div>
+        <h3>📋 費用の内訳</h3>
+        <table class="cost-table">
+            <tr><th>項目</th><th>詳細</th><th>3人合計金額</th></tr>
+            <tr><td>🎟️ 入場料</td><td>美ら海・琉球村・ビオス・おきなわワールド等</td><td>¥33,540</td></tr>
+            <tr><td>🍽️ 食事代</td><td>A&W、アメリカンビレッジ、沖縄そば等（2日目夜除く）</td><td>¥12,900〜¥24,000</td></tr>
+            <tr><td>⛽ ガソリン代</td><td>3日間の走行分（約150km想定）</td><td>¥2,000〜¥3,000</td></tr>
+            <tr><td>🛍️ その他</td><td>お土産代・スーパーでの買い出し等</td><td>¥4,000〜¥14,000</td></tr>
+        </table>
+    </div>
+</div>
+
+<script>
+    let currentDay = 1;
+    let currentMode = 'sche';
+    let map = null;
+    let markers = [];
+
+    // スポットの位置データ
+    const spots = {
+        1: [
+            { name: "那覇空港", lat: 26.2064, lng: 127.6465 },
+            { name: "琉球村", lat: 26.4357, lng: 127.7936 },
+            { name: "ビオスの丘", lat: 26.4239, lng: 127.8016 },
+            { name: "Cave Okinawa", lat: 26.4258, lng: 127.8285 },
+            { name: "アメリカンビレッジ", lat: 26.3158, lng: 127.7558 },
+            { name: "ホテルみゆきビーチ", lat: 26.5053, lng: 127.9192 }
+        ],
+        2: [
+            { name: "ホテルみゆきビーチ", lat: 26.5053, lng: 127.9192 },
+            { name: "美ら海水族館", lat: 26.6944, lng: 127.8779 },
+            { name: "ナゴパイナップルパーク", lat: 26.6152, lng: 127.9691 },
+            { name: "道の駅 許田", lat: 26.5501, lng: 127.9669 }
+        ],
+        3: [
+            { name: "ホテルみゆきビーチ", lat: 26.5053, lng: 127.9192 },
+            { name: "おきなわワールド", lat: 26.1397, lng: 127.7503 },
+            { name: "首里城公園", lat: 26.2170, lng: 127.7195 },
+            { name: "国際通り", lat: 26.2146, lng: 127.6868 },
+            { name: "那覇空港", lat: 26.2064, lng: 127.6465 }
+        ]
+    };
+
+    function switchDay(day) {
+        currentDay = day;
+        document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
+            btn.classList.toggle('active', idx === day - 1);
+        });
+
+        // スケジュールの表示切替
+        for(let i=1; i<=3; i++) {
+            document.getElementById(`day${i}-sche`).style.display = (i === day) ? 'block' : 'none';
+        }
+
+        if (currentMode === 'map') {
+            updateMap();
+        }
+    }
+
+    function switchMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.sub-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
+
+        document.getElementById(`btn-${mode}`).classList.add('active');
+        document.getElementById(`sec-${mode}`).classList.add('active');
+
+        if (mode === 'map') {
+            // 地図の初期化
+            if (!map) {
+                map = L.map('map').setView([26.4, 127.8], 10);
+                // ★ここが重要：OpenStreetMapの地図タイルを追加
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(map);
+            }
+            setTimeout(() => { map.invalidateSize(); updateMap(); }, 100);
+        }
+    }
+
+    function updateMap() {
+        if (!map) return;
+        // 古いマーカーを消す
+        markers.forEach(m => map.removeLayer(m));
+        markers = [];
+
+        const daySpots = spots[currentDay];
+        const latlngs = [];
+
+        daySpots.forEach((spot, idx) => {
+            const marker = L.marker([spot.lat, spot.lng])
+                .addTo(map)
+                .bindPopup(`<b>${idx + 1}. ${spot.name}</b>`)
+                .openPopup();
+            markers.push(marker);
+            latlngs.push([spot.lat, spot.lng]);
+        });
+
+        // ルート線を引く
+        const polyline = L.polyline(latlngs, {color: currentDay === 1 ? '#ff6b6b' : currentDay === 2 ? '#4dadf7' : '#22b8cf'}).addTo(map);
+        markers.push(polyline);
+
+        // すべてのピンが収まるように表示を調整
+        const group = new L.featureGroup(markers.filter(m => m instanceof L.Marker));
+        map.fitBounds(group.getBounds().pad(0.1));
+    }
+</script>
+
+</body>
+</html>
