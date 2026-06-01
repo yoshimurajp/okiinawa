@@ -239,7 +239,6 @@
     let map = null;
     let markers = [];
 
-    // スポットの位置データ
     const spots = {
         1: [
             { name: "那覇空港", lat: 26.2064, lng: 127.6465 },
@@ -270,7 +269,6 @@
             btn.classList.toggle('active', idx === day - 1);
         });
 
-        // スケジュールの表示切替
         for(let i=1; i<=3; i++) {
             document.getElementById(`day${i}-sche`).style.display = (i === day) ? 'block' : 'none';
         }
@@ -289,10 +287,8 @@
         document.getElementById(`sec-${mode}`).classList.add('active');
 
         if (mode === 'map') {
-            // 地図の初期化
             if (!map) {
                 map = L.map('map').setView([26.4, 127.8], 10);
-                // ★ここが重要：OpenStreetMapの地図タイルを追加
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     attribution: '&copy; OpenStreetMap contributors'
                 }).addTo(map);
@@ -303,7 +299,6 @@
 
     function updateMap() {
         if (!map) return;
-        // 古いマーカーを消す
         markers.forEach(m => map.removeLayer(m));
         markers = [];
 
@@ -319,11 +314,9 @@
             latlngs.push([spot.lat, spot.lng]);
         });
 
-        // ルート線を引く
         const polyline = L.polyline(latlngs, {color: currentDay === 1 ? '#ff6b6b' : currentDay === 2 ? '#4dadf7' : '#22b8cf'}).addTo(map);
         markers.push(polyline);
 
-        // すべてのピンが収まるように表示を調整
         const group = new L.featureGroup(markers.filter(m => m instanceof L.Marker));
         map.fitBounds(group.getBounds().pad(0.1));
     }
