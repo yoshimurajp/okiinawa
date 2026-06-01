@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🌺 沖縄3日間 旅行プラン</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif; background: linear-gradient(135deg,#FFF9F0 0%,#E8F4FD 50%,#F0F8FF 100%); min-height: 100vh; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes copyPop { 0%{transform:scale(1)} 50%{transform:scale(1.2)} 100%{transform:scale(1)} }
+button { font-family: inherit; }
+.copy-btn:active { transform: scale(0.95); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+const SPOTS = {
+  day1: [
+    { time:"09:25", name:"那覇空港", address:"沖縄県那覇市鏡水150", lat:26.1958, lng:127.6455, note:"手荷物受け取り後、レンタカーバス乗り場14-Aへ", fee:"—", duration:"—", meal:null },
+    { time:"09:55", name:"Sweetレンタカー那覇空港店", address:"沖縄県豊見城市与根337-2-2", lat:26.1821, lng:127.6512, note:"免許証・ETC確認。カーナビセット", fee:"込み済み", duration:"〜30分", meal:null },
+    { time:"11:30", name:"琉球村", address:"沖縄県中頭郡恩納村山田1130", lat:26.4523, lng:127.7856, note:"エイサーや紅型体験も◎ 沖縄の原風景に浸れる", fee:"大人2,000円", duration:"2時間", meal:"🍜 近くのA&Wで沖縄限定バーガーを昼食に" },
+    { time:"14:00", name:"ビオスの丘", address:"沖縄県うるま市石川嘉手苅961-30", lat:26.4012, lng:127.8234, note:"湖水ボートが絶品。17:30閉園注意！", fee:"2,200円", duration:"2時間", meal:null },
+    { time:"16:10", name:"Cave Okinawa", address:"沖縄県うるま市石川東恩納256", lat:26.4089, lng:127.8198, note:"鍾乳洞系の神秘体験。涼しくて夏場最高", fee:"1,200円", duration:"1時間", meal:null },
+    { time:"17:20", name:"読谷村せなは6（実家）", address:"沖縄県中頭郡読谷村字瀬名波", lat:26.3956, lng:127.7234, note:"子供お迎え・実家訪問", fee:"—", duration:"〜1時間", meal:null },
+    { time:"18:30", name:"アメリカンビレッジ", address:"沖縄県中頭郡北谷町美浜9-1", lat:26.3123, lng:127.7543, note:"観覧車バックに夕焼けが映える！", fee:"—", duration:"1時間", meal:"🌮 浜辺の茶屋 or デポアイランド周辺で夕食" },
+    { time:"19:30", name:"サンエー 北谷店", address:"沖縄県中頭郡北谷町美浜15-78", lat:26.3098, lng:127.7521, note:"地場スーパーで沖縄食材・泡盛をゲット", fee:"—", duration:"30分", meal:null },
+    { time:"20:30", name:"ホテルみゆきビーチ", address:"沖縄県国頭郡恩納村字安富祖1583-2", lat:26.4712, lng:127.8012, note:"チェックイン。バルコニーから夜の海を", fee:"—", duration:"—", meal:null },
+  ],
+  day2: [
+    { time:"07:00", name:"ホテルみゆきビーチ 出発", address:"沖縄県国頭郡恩納村字安富祖1583-2", lat:26.4712, lng:127.8012, note:"早出推奨！土曜は美ら海が混みます", fee:"—", duration:"—", meal:"朝食はコンビニ or 車内で軽く" },
+    { time:"08:30", name:"美ら海水族館", address:"沖縄県国頭郡本部町石川424", lat:26.6941, lng:127.8783, note:"ジンベイザメの給餌タイム(8:30〜)狙い目！", fee:"大人2,180円", duration:"3時間", meal:"🍱 館内レストラン「イノー」で昼食" },
+    { time:"12:00", name:"備瀬のフクギ並木", address:"沖縄県国頭郡本部町備瀬389", lat:26.7089, lng:127.8756, note:"緑のトンネルが幻想的。美ら海から徒歩圏", fee:"無料", duration:"30分", meal:null },
+    { time:"13:00", name:"ハートロック（恋人岬）", address:"沖縄県国頭郡今帰仁村湧川", lat:26.7234, lng:127.9123, note:"干潮時にハート型の岩が現れる。潮位確認推奨", fee:"無料", duration:"20分", meal:null },
+    { time:"14:30", name:"パイナップルパーク", address:"沖縄県名護市為又1195", lat:26.6123, lng:127.9234, note:"パイナップルカートが人気。お土産も充実", fee:"大人1,200円", duration:"3時間", meal:null },
+    { time:"18:00", name:"読谷村せなは6（実家）", address:"沖縄県中頭郡読谷村字瀬名波", lat:26.3956, lng:127.7234, note:"実家訪問。夕食をご馳走になれると◎", fee:"—", duration:"〜2時間", meal:null },
+    { time:"20:30", name:"ホテルみゆきビーチ 着", address:"沖縄県国頭郡恩納村字安富祖1583-2", lat:26.4712, lng:127.8012, note:"荷物はホテルにあるのでそのまま就寝", fee:"—", duration:"—", meal:null },
+  ],
+  day3: [
+    { time:"08:00", name:"ホテルみゆきビーチ チェックアウト", address:"沖縄県国頭郡恩納村字安富祖1583-2", lat:26.4712, lng:127.8012, note:"荷物をトランクへ。忘れ物チェック！", fee:"—", duration:"—", meal:"朝食は早めに済ませて出発" },
+    { time:"09:30", name:"おきなわワールド・玉泉洞", address:"沖縄県南城市玉城前川1336", lat:26.1234, lng:127.7654, note:"全長5kmの鍾乳洞が圧巻。ハブショーも面白い", fee:"大人2,000円", duration:"2.5時間", meal:null },
+    { time:"12:30", name:"国際通り", address:"沖縄県那覇市牧志", lat:26.2172, lng:127.6889, note:"最後のお土産タイム。牧志公設市場も近い", fee:"—", duration:"2時間", meal:"🥩 うちなー食堂で沖縄そば or ゴーヤチャンプルー定食" },
+    { time:"15:00", name:"首里城", address:"沖縄県那覇市首里金城町1-2", lat:26.2172, lng:127.7198, note:"国際通りから車で10分。復元工事中だが見応えあり", fee:"大人400円", duration:"1時間", meal:null },
+    { time:"18:30", name:"Sweetレンタカー返却", address:"沖縄県豊見城市与根337-2-2", lat:26.1821, lng:127.6512, note:"19:10返却期限。送迎バスで空港へ（約30分）", fee:"—", duration:"—", meal:null },
+    { time:"20:40", name:"那覇空港 出発", address:"沖縄県那覇市鏡水150", lat:26.1958, lng:127.6455, note:"羽田23:00着。お疲れさまでした！", fee:"—", duration:"—", meal:null },
+  ],
+};
+
+const DAY_COLORS = {
+  1: { main:"#FF6B6B", light:"#FFF0F0", accent:"#FF3D3D", map:"#FF6B6B", line:"#FF6B6B" },
+  2: { main:"#4ECDC4", light:"#E8FFFE", accent:"#00A99D", map:"#4ECDC4", line:"#4ECDC4" },
+  3: { main:"#A78BFA", light:"#F5F0FF", accent:"#7C3AED", map:"#A78BFA", line:"#A78BFA" },
+};
+
+const COSTS = {
+  admission: [
+    { label:"🏯 琉球村", per:2000 },{ label:"🌿 ビオスの丘", per:2200 },
+    { label:"🕳️ Cave Okinawa", per:1200 },{ label:"🐋 美ら海水族館", per:2180 },
+    { label:"🍍 パイナップルパーク", per:1200 },{ label:"🌋 おきなわワールド", per:2000 },
+    { label:"⛩️ 首里城", per:400 },
+  ],
+  meals:[
+    { label:"🍜 昼食（1日目）", note:"A&W など", min:800, max:1500 },
+    { label:"🌮 夕食（1日目）", note:"アメリカンビレッジ周辺", min:1500, max:3000 },
+    { label:"🍱 昼食（2日目）", note:"美ら海 館内レストラン", min:1200, max:2000 },
+    { label:"🥩 昼食（3日目）", note:"国際通り 沖縄そば等", min:800, max:1500 },
+  ],
+  other:[
+    { label:"⛽ ガソリン代（3日分）", note:"約150km想定", min:2000, max:3000 },
+    { label:"🛍️ お土産代", note:"国際通り・スーパー等", min:3000, max:10000 },
+    { label:"🛒 スーパー（食材・飲み物）", note:"サンエー等", min:1000, max:3000 },
+    { label:"🅿️ 駐車場", note:"各スポット（無料多め）", min:0, max:1000 },
+  ],
+};
+
+// Simple map using SVG + OpenStreetMap tile via img
+function MapView({ activeDay }) {
+  const c = DAY_COLORS[activeDay];
+  const spots = SPOTS[`day${activeDay}`];
+  const [selectedSpot, setSelectedSpot] = useState(null);
+  const [copied, setCopied] = useState(false);
+
+  // Compute bounding box
+  const lats = spots.map(s=>s.lat);
+  const lngs = spots.map(s=>s.lng);
+  const minLat = Math.min(...lats), maxLat = Math.max(...lats);
+  const minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
+  const padLat = (maxLat-minLat)*0.15 || 0.05;
+  const padLng = (maxLng-minLng)*0.15 || 0.05;
+  const bLat = [minLat-padLat, maxLat+padLat];
+  const bLng = [minLng-padLng, maxLng+padLng];
+
+  const W = 360, H = 300;
+  const toX = lng => ((lng-bLng[0])/(bLng[1]-bLng[0]))*W;
+  const toY = lat => H - ((lat-bLat[0])/(bLat[1]-bLat[0]))*H;
+
+  // Build polyline points
+  const linePoints = spots.map(s=>`${toX(s.lng)},${toY(s.lat)}`).join(" ");
+
+  const copyAddress = (addr) => {
+    navigator.clipboard.writeText(addr).then(()=>{
+      setCopied(true);
+      setTimeout(()=>setCopied(false), 2000);
+    });
+  };
+
+  useEffect(() => { setSelectedSpot(null); }, [activeDay]);
+
+  return (
+    <div style={{marginBottom:20}}>
+      {/* Map area */}
+      <div style={{background:"#E8F4FD",borderRadius:16,overflow:"hidden",position:"relative",border:`2px solid ${c.main}40`}}>
+        {/* OSM background hint */}
+        <div style={{position:"absolute",top:8,right:8,fontSize:10,color:"#999",zIndex:2,background:"rgba(255,255,255,0.8)",padding:"2px 6px",borderRadius:8}}>
+          © OpenStreetMap
+        </div>
+        <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block",background:"linear-gradient(180deg,#C8E6FA 0%,#A8D5F5 40%,#8BC4F0 100%)"}}>
+          {/* Ocean/land simplified background */}
+          <rect width={W} height={H} fill="#B8DFF5"/>
+          {/* Simple Okinawa island shape hint */}
+          <ellipse cx={W*0.5} cy={H*0.45} rx={W*0.35} ry={H*0.38} fill="#C8E6B0" opacity="0.6"/>
+
+          {/* Route line */}
+          <polyline points={linePoints} fill="none" stroke={c.line} strokeWidth="2.5" strokeDasharray="6,4" opacity="0.8"/>
+
+          {/* Spot markers */}
+          {spots.map((s,i)=>{
+            const x=toX(s.lng), y=toY(s.lat);
+            const isSelected = selectedSpot===i;
+            return (
+              <g key={i} style={{cursor:"pointer"}} onClick={()=>setSelectedSpot(isSelected?null:i)}>
+                <circle cx={x} cy={y} r={isSelected?14:10} fill="#fff" stroke={c.main} strokeWidth={isSelected?3:2} filter={isSelected?"url(#shadow)":"none"}/>
+                <text x={x} y={y+1} textAnchor="middle" dominantBaseline="middle" fontSize={isSelected?10:8} fontWeight="700" fill={c.main}>{i+1}</text>
+                {isSelected&&(
+                  <circle cx={x} cy={y} r="18" fill={c.main} opacity="0.15"/>
+                )}
+              </g>
+            );
+          })}
+          <defs>
+            <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.3"/>
+            </filter>
+          </defs>
+        </svg>
+
+        {/* Legend */}
+        <div style={{padding:"8px 12px",background:"rgba(255,255,255,0.9)",display:"flex",gap:6,flexWrap:"wrap"}}>
+          {spots.map((s,i)=>(
+            <button key={i} onClick={()=>setSelectedSpot(selectedSpot===i?null:i)} style={{
+              background:selectedSpot===i?c.main:"#fff",
+              color:selectedSpot===i?"#fff":c.main,
+              border:`1.5px solid ${c.main}`,
+              borderRadius:20,padding:"3px 10px",
+              fontSize:11,fontWeight:700,cursor:"pointer",
+              transition:"all 0.2s",
+            }}>
+              {i+1}. {s.name.replace("ホテルみゆきビーチ","みゆきビーチ").replace("Sweetレンタカー那覇空港店","レンタカー").replace("Sweetレンタカー返却","レンタカー返却")}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Spot detail popup */}
+      {selectedSpot !== null && (
+        <div style={{
+          background:"#fff",borderRadius:16,padding:"16px",marginTop:10,
+          boxShadow:"0 4px 20px rgba(0,0,0,0.1)",
+          border:`2px solid ${c.main}`,
+          animation:"slideUp 0.2s ease",
+        }}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+            <div>
+              <div style={{fontSize:12,color:c.main,fontWeight:700,marginBottom:2}}>📍 {spots[selectedSpot].time}</div>
+              <div style={{fontSize:16,fontWeight:800,color:"#222"}}>{spots[selectedSpot].name}</div>
+            </div>
+            <button onClick={()=>setSelectedSpot(null)} style={{background:"#f0f0f0",border:"none",borderRadius:"50%",width:28,height:28,cursor:"pointer",fontSize:14,color:"#666"}}>×</button>
+          </div>
+          <div style={{
+            background:"#F8F8F8",borderRadius:10,padding:"10px 12px",marginTop:10,
+            display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,
+          }}>
+            <span style={{fontSize:12,color:"#555",flex:1,lineHeight:1.5}}>🗺 {spots[selectedSpot].address}</span>
+            <button
+              onClick={()=>copyAddress(spots[selectedSpot].address)}
+              style={{
+                background:copied?c.main:"#fff",
+                color:copied?"#fff":c.main,
+                border:`1.5px solid ${c.main}`,
+                borderRadius:20,padding:"5px 12px",
+                fontSize:12,fontWeight:700,cursor:"pointer",
+                whiteSpace:"nowrap",transition:"all 0.2s",
+                flexShrink:0,
+              }}
+            >
+              {copied?"✅ コピー済み":"📋 コピー"}
+            </button>
+          </div>
+          <div style={{fontSize:12,color:"#666",marginTop:8,lineHeight:1.6}}>{spots[selectedSpot].note}</div>
+          <div style={{display:"flex",gap:8,marginTop:8,flexWrap:"wrap"}}>
+            {spots[selectedSpot].duration!=="—"&&<span style={{fontSize:11,background:c.light,color:c.main,padding:"3px 10px",borderRadius:20,fontWeight:600}}>⏱ {spots[selectedSpot].duration}</span>}
+            {spots[selectedSpot].fee!=="—"&&<span style={{fontSize:11,background:"#FFF8E1",color:"#E65100",padding:"3px 10px",borderRadius:20,fontWeight:600}}>💰 {spots[selectedSpot].fee}</span>}
+          </div>
+          {spots[selectedSpot].meal&&<div style={{fontSize:12,color:"#FF8C00",marginTop:8,background:"#FFF8E1",padding:"8px 12px",borderRadius:10,fontWeight:600}}>{spots[selectedSpot].meal}</div>}
+          {/* Google Maps link */}
+          <a
+            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spots[selectedSpot].address)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{display:"block",marginTop:10,textAlign:"center",background:`linear-gradient(135deg,${c.main},${c.accent||c.main})`,color:"#fff",padding:"8px",borderRadius:10,fontSize:13,fontWeight:700,textDecoration:"none"}}
+          >
+            🗺 Google マップで開く
+          </a>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ScheduleView({ activeDay }) {
+  const c = DAY_COLORS[activeDay];
+  const spots = SPOTS[`day${activeDay}`];
+  const [openSpot, setOpenSpot] = useState(null);
+  const [copied, setCopied] = useState(null);
+
+  const copyAddress = (addr, idx) => {
+    navigator.clipboard.writeText(addr).then(()=>{
+      setCopied(idx);
+      setTimeout(()=>setCopied(null), 2000);
+    });
+  };
+
+  useEffect(()=>{ setOpenSpot(null); }, [activeDay]);
+
+  const detours = {
+    1:["残波岬（読谷〜アメリカンビレッジ途中）：断崖絶壁×灯台の絶景","やちむんの里（読谷村）：沖縄陶器の工房街、散策5分でも◎"],
+    2:["今帰仁城跡（美ら海の帰り道）：世界遺産の城址、夕暮れが絶景","道の駅 許田（やんばる市場）：北部の名産品が揃う、帰り道に◎"],
+    3:["ひめゆりの塔（おきなわワールド近く）：歴史を学ぶ5分立ち寄り","新垣ちんすこう本舗（国際通り）：できたてちんすこうが買える"],
+  };
+  const hotelTips = {
+    1:"早朝6時〜の無料展望大浴場から海を眺めるのが最高。夜は外のバルコニーで泡盛タイム🌙",
+    2:"翌朝は最終日なので、荷造りを夜のうちに済ませておくと楽🧳",
+  };
+
+  return (
+    <div>
+      <h2 style={{fontSize:14,fontWeight:800,color:c.main,letterSpacing:2,marginBottom:12}}>🕐 タイムスケジュール</h2>
+      <div style={{position:"relative"}}>
+        <div style={{position:"absolute",left:42,top:0,bottom:0,width:2,background:`${c.main}30`}}/>
+        {spots.map((item,i)=>(
+          <div key={i} style={{display:"flex",gap:12,marginBottom:12,animation:`fadeIn 0.3s ease ${i*0.04}s both`}}>
+            <div style={{minWidth:60,textAlign:"right",fontSize:12,fontWeight:700,color:c.main,paddingTop:12}}>{item.time}</div>
+            <div style={{width:16,height:16,borderRadius:"50%",background:item.meal?"#FFD700":c.main,border:"3px solid #fff",boxShadow:`0 0 0 2px ${c.main}`,marginTop:10,flexShrink:0,zIndex:1}}/>
+            <div style={{background:"#fff",borderRadius:12,padding:"10px 14px",flex:1,boxShadow:"0 2px 8px rgba(0,0,0,0.06)",border:`1px solid ${c.main}20`}}>
+              {/* Tappable name */}
+              <div
+                onClick={()=>setOpenSpot(openSpot===i?null:i)}
+                style={{fontWeight:700,fontSize:14,color:c.main,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"space-between"}}
+              >
+                <span>{item.name}</span>
+                <span style={{fontSize:12,opacity:0.6}}>{openSpot===i?"▲":"▼"}</span>
+              </div>
+              {/* Address drawer */}
+              {openSpot===i&&(
+                <div style={{marginTop:8,animation:"slideUp 0.2s ease"}}>
+                  <div style={{background:"#F8F8F8",borderRadius:10,padding:"8px 12px",display:"flex",alignItems:"center",gap:8,justifyContent:"space-between"}}>
+                    <span style={{fontSize:11,color:"#555",flex:1,lineHeight:1.5}}>🗺 {item.address}</span>
+                    <button
+                      onClick={()=>copyAddress(item.address,i)}
+                      style={{background:copied===i?c.main:"#fff",color:copied===i?"#fff":c.main,border:`1.5px solid ${c.main}`,borderRadius:20,padding:"4px 10px",fontSize:11,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,transition:"all 0.2s"}}
+                    >
+                      {copied===i?"✅ コピー済み":"📋 コピー"}
+                    </button>
+                  </div>
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.address)}`}
+                    target="_blank" rel="noopener noreferrer"
+                    style={{display:"block",marginTop:6,textAlign:"center",background:`linear-gradient(135deg,${c.main},${c.accent})`,color:"#fff",padding:"6px",borderRadius:8,fontSize:12,fontWeight:700,textDecoration:"none"}}
+                  >
+                    🗺 Google マップで開く
+                  </a>
+                </div>
+              )}
+              <div style={{display:"flex",gap:8,flexWrap:"wrap",margin:"6px 0 4px"}}>
+                {item.duration!=="—"&&<span style={{fontSize:11,background:c.light,color:c.main,padding:"2px 8px",borderRadius:20,fontWeight:600}}>⏱ {item.duration}</span>}
+                {item.fee!=="—"&&<span style={{fontSize:11,background:"#FFF8E1",color:"#E65100",padding:"2px 8px",borderRadius:20,fontWeight:600}}>💰 {item.fee}</span>}
+              </div>
+              <div style={{fontSize:12,color:"#555",lineHeight:1.5}}>{item.note}</div>
+              {item.meal&&<div style={{fontSize:12,color:"#FF8C00",marginTop:6,background:"#FFF8E1",padding:"6px 10px",borderRadius:8,fontWeight:600}}>{item.meal}</div>}
+            </div>
+          </div>
+        ))}
+      </div>
+      {/* Detour */}
+      <div style={{background:"#fff",borderRadius:16,padding:"16px",marginBottom:16,boxShadow:"0 2px 12px rgba(0,0,0,0.06)"}}>
+        <h3 style={{fontSize:13,fontWeight:800,color:c.main,letterSpacing:2,marginBottom:10}}>🗺️ ルート沿いのおすすめ立ち寄り</h3>
+        {detours[activeDay].map((d,i)=>(
+          <div key={i} style={{fontSize:13,color:"#444",padding:"6px 0",borderBottom:i<1?"1px solid #f0f0f0":"none",lineHeight:1.6}}>✨ {d}</div>
+        ))}
+      </div>
+      {hotelTips[activeDay]&&(
+        <div style={{background:`linear-gradient(135deg,${c.light},#fff)`,border:`1.5px solid ${c.main}40`,borderRadius:16,padding:"16px",marginBottom:16}}>
+          <h3 style={{fontSize:13,fontWeight:800,color:c.main,letterSpacing:2,marginBottom:8}}>🏨 ホテル周辺Tips</h3>
+          <p style={{fontSize:13,color:"#444",lineHeight:1.7,margin:0}}>{hotelTips[activeDay]}</p>
+        </div>
+      )}
+      {activeDay===3&&(
+        <>
+          <div style={{background:"linear-gradient(135deg,#FFF3E0,#FFF9C4)",borderRadius:16,padding:"16px",marginBottom:16}}>
+            <h3 style={{fontSize:13,fontWeight:800,color:"#E65100",letterSpacing:2,marginBottom:10}}>🌺 6月沖縄のポイント</h3>
+            {["☀️ 6月は梅雨明け直後！エメラルドの海が最もきれいな季節","🥭 マンゴー・パイナップルが旬。地場スーパーで買うのが一番安い","🌊 海水温が上がり始め、シュノーケルも快適に","🌸 梅雨の晴れ間は蒸し暑い。日焼け止め・水分補給を忘れずに"].map((t,i)=>(
+              <div key={i} style={{fontSize:13,color:"#444",padding:"5px 0",lineHeight:1.6}}>{t}</div>
+            ))}
+          </div>
+          <div style={{background:"linear-gradient(135deg,#F3E5F5,#FCE4EC)",borderRadius:16,padding:"16px",marginBottom:16}}>
+            <h3 style={{fontSize:13,fontWeight:800,color:"#7B1FA2",letterSpacing:2,marginBottom:10}}>🛍️ 国際通りで外せない</h3>
+            {["🍬 御菓子御殿のちんすこう・紅芋タルト（定番中の定番）","🥃 泡盛の試飲ができる酒屋で地元銘柄をゲット","🐷 牧志公設市場で沖縄食材を見学（豚の顔まるごと売ってる！）","🌺 むつみ橋通りの地元食堂で本場の沖縄そばを"].map((t,i)=>(
+              <div key={i} style={{fontSize:13,color:"#444",padding:"5px 0",lineHeight:1.6}}>{t}</div>
+            ))}
+          </div>
+          <div style={{background:"linear-gradient(135deg,#FFEBEE,#FFF3E0)",borderRadius:16,padding:"16px",marginBottom:16}}>
+            <h3 style={{fontSize:13,fontWeight:800,color:"#C62828",letterSpacing:2,marginBottom:10}}>⚠️ 注意事項</h3>
+            {["🚗 沖縄の渋滞は読めない。特に国道58号は土日要注意","☀️ 紫外線が本州の約1.5倍。日焼け止めは必携","🐍 ハブに注意。草むらや石の隙間には手を入れない","⛽ ガソリンスタンドは内地より少ない。返却前に給油を忘れずに","🌊 遊泳は指定ビーチで。離岸流が発生しやすいエリアあり"].map((t,i)=>(
+              <div key={i} style={{fontSize:13,color:"#444",padding:"5px 0",lineHeight:1.6}}>{t}</div>
+            ))}
+          </div>
+          <div style={{background:"linear-gradient(135deg,#4ECDC4,#2196F3)",borderRadius:16,padding:"20px",marginBottom:16,boxShadow:"0 4px 20px rgba(78,205,196,0.3)"}}>
+            <h3 style={{fontSize:13,fontWeight:800,color:"rgba(255,255,255,0.9)",letterSpacing:2,marginBottom:8}}>🏆 この旅のイチ押し</h3>
+            <div style={{fontSize:16,fontWeight:900,color:"#fff",marginBottom:8}}>美ら海水族館（早朝8:30〜）</div>
+            <div style={{fontSize:13,color:"rgba(255,255,255,0.9)",lineHeight:1.7}}>ジンベイザメの給餌タイムは8:30から。土曜の混雑前に入れる上、直後に備瀬のフクギ並木と組み合わせると北部観光が完璧に完結。この旅で最も「来てよかった」と思える体験になるはず。</div>
+          </div>
+        </>
+      )}
+      {activeDay!==3&&<div style={{textAlign:"center",fontSize:13,color:"#999",padding:"8px 0"}}>💡 6月のTips・国際通り情報・注意事項はDay3タブで確認できます</div>}
+    </div>
+  );
+}
+
+function CostView() {
+  const admissionTotal3 = COSTS.admission.reduce((s,i)=>s+i.per*3,0);
+  const mealMin = COSTS.meals.reduce((s,i)=>s+i.min*3,0);
+  const mealMax = COSTS.meals.reduce((s,i)=>s+i.max*3,0);
+  const otherMin = COSTS.other.reduce((s,i)=>s+i.min,0);
+  const otherMax = COSTS.other.reduce((s,i)=>s+i.max,0);
+  const totalMin = admissionTotal3+mealMin+otherMin;
+  const totalMax = admissionTotal3+mealMax+otherMax;
+  return (
+    <div style={{animation:"fadeIn 0.3s ease"}}>
+      <div style={{background:"linear-gradient(135deg,#FF8C00,#FFB300)",borderRadius:16,padding:"20px",marginBottom:20,boxShadow:"0 4px 20px rgba(255,140,0,0.3)",textAlign:"center"}}>
+        <div style={{color:"rgba(255,255,255,0.85)",fontSize:12,letterSpacing:2,fontWeight:600}}>現地での追加費用（3名合計）</div>
+        <div style={{color:"#fff",fontSize:30,fontWeight:900,margin:"4px 0"}}>¥{totalMin.toLocaleString()} 〜 ¥{totalMax.toLocaleString()}</div>
+        <div style={{color:"rgba(255,255,255,0.8)",fontSize:12}}>※航空券・ホテル・レンタカーはパック済み</div>
+      </div>
+      <div style={{background:"#fff",borderRadius:16,padding:"16px",marginBottom:14,boxShadow:"0 2px 12px rgba(0,0,0,0.06)"}}>
+        <h3 style={{fontSize:13,fontWeight:800,color:"#4CAF50",letterSpacing:2,marginBottom:12}}>✅ パック込み（追加費用なし）</h3>
+        {["✈️ 往復航空券（3名） — ANA パック込み","🏨 ホテル2泊（1室） — ホテルみゆきビーチ 素泊まり","🚗 レンタカー（2泊3日） — Sweetレンタカー 免責込み"].map((t,i)=>(
+          <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:i<2?"1px solid #f5f5f5":"none"}}>
+            <div style={{fontSize:13,color:"#333"}}>{t}</div>
+            <div style={{fontSize:13,fontWeight:700,color:"#4CAF50",background:"#F1F8E9",padding:"4px 10px",borderRadius:20}}>込み済み</div>
+          </div>
+        ))}
+      </div>
+      <div style={{background:"#fff",borderRadius:16,padding:"16px",marginBottom:14,boxShadow:"0 2px 12px rgba(0,0,0,0.06)"}}>
+        <h3 style={{fontSize:13,fontWeight:800,color:"#FF6B6B",letterSpacing:2,marginBottom:4}}>🎟️ 入場料（3名合計）</h3>
+        <div style={{fontSize:11,color:"#999",marginBottom:12}}>※1名あたりの料金 × 3名</div>
+        {COSTS.admission.map((item,i)=>(
+          <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:i<COSTS.admission.length-1?"1px solid #f5f5f5":"none"}}>
+            <div><div style={{fontSize:13,fontWeight:600,color:"#333"}}>{item.label}</div><div style={{fontSize:11,color:"#888"}}>{item.per.toLocaleString()}円/人</div></div>
+            <div style={{fontSize:14,fontWeight:700,color:"#FF6B6B"}}>¥{(item.per*3).toLocaleString()}</div>
+          </div>
+        ))}
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:10,paddingTop:10,borderTop:"2px solid #FF6B6B30"}}>
+          <div style={{fontSize:13,fontWeight:800,color:"#FF6B6B"}}>入場料 合計</div>
+          <div style={{fontSize:16,fontWeight:900,color:"#FF6B6B"}}>¥{admissionTotal3.toLocaleString()}</div>
+        </div>
+      </div>
+      <div style={{background:"#fff",borderRadius:16,padding:"16px",marginBottom:14,boxShadow:"0 2px 12px rgba(0,0,0,0.06)"}}>
+        <h3 style={{fontSize:13,fontWeight:800,color:"#FF8C00",letterSpacing:2,marginBottom:4}}>🍽️ 食事代（3名合計）</h3>
+        <div style={{fontSize:11,color:"#999",marginBottom:12}}>※2日目夕食は実家でご馳走になる想定で除外</div>
+        {COSTS.meals.map((item,i)=>(
+          <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:i<COSTS.meals.length-1?"1px solid #f5f5f5":"none"}}>
+            <div><div style={{fontSize:13,fontWeight:600,color:"#333"}}>{item.label}</div><div style={{fontSize:11,color:"#888"}}>{item.note}</div></div>
+            <div style={{fontSize:12,fontWeight:700,color:"#FF8C00",textAlign:"right"}}>¥{(item.min*3).toLocaleString()}〜<br/>¥{(item.max*3).toLocaleString()}</div>
+          </div>
+        ))}
+        <div style={{display:"flex",justifyContent:"space-between",marginTop:10,paddingTop:10,borderTop:"2px solid #FF8C0020"}}>
+          <div style={{fontSize:13,fontWeight:800,color:"#FF8C00"}}>食事代 合計</div>
+          <div style={{fontSize:13,fontWeight:900,color:"#FF8C00"}}>¥{mealMin.toLocaleString()}〜¥{mealMax.toLocaleString()}</div>
+        </div>
+      </div>
+      <div style={{background:"#fff",borderRadius:16,padding:"16px",marginBottom:14,boxShadow:"0 2px 12px rgba(0,0,0,0.06)"}}>
+        <h3 style={{fontSize:13,fontWeight:800,color:"#4ECDC4",letterSpacing:2,marginBottom:12}}>🗂️ その他費用</h3>
+        {COSTS.other.map((item,i)=>(
+          <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:i<COSTS.other.length-1?"1px solid #f5f5f5":"none"}}>
+            <div><div style={{fontSize:13,fontWeight:600,color:"#333"}}>{item.label}</div><div style={{fontSize:11,color:"#888"}}>{item.note}</div></div>
+            <div style={{fontSize:13,fontWeight:700,color:"#4ECDC4"}}>{item.min===item.max?`¥${item.min.toLocaleString()}`:`¥${item.min.toLocaleString()}〜¥${item.max.toLocaleString()}`}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{background:"linear-gradient(135deg,#E8F5E9,#F1F8E9)",borderRadius:16,padding:"16px",marginBottom:20,border:"1.5px solid #81C78440"}}>
+        <h3 style={{fontSize:13,fontWeight:800,color:"#2E7D32",letterSpacing:2,marginBottom:10}}>💡 節約Tips</h3>
+        {["🎟️ 美ら海水族館はじゃらん等の割引クーポンで1割引になることも","🥭 フルーツはスーパーで買うと市場の半額以下","⛽ ガソリンはレンタカー返却前に満タン。空港近くは割高なので要注意","🍜 沖縄そばは地元食堂なら700〜900円。観光地は1,200円〜","🛍️ お土産はスーパーが最安。ちんすこうは業務用パックがお得"].map((t,i,a)=>(
+          <div key={i} style={{fontSize:13,color:"#444",padding:"5px 0",lineHeight:1.6,borderBottom:i<a.length-1?"1px solid #C8E6C940":"none"}}>{t}</div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [activeDay, setActiveDay] = useState(1);
+  const [activeTab, setActiveTab] = useState("schedule"); // schedule | map | cost
+  const [loaded, setLoaded] = useState(false);
+  useEffect(()=>{ setTimeout(()=>setLoaded(true),100); },[]);
+  const c = DAY_COLORS[activeDay];
+  const days = [1,2,3];
+  const dayLabels = ["6/5(金)","6/6(土)","6/7(日)"];
+  const dayEmojis = ["🌺","🐠","🦋"];
+  const dayThemes = ["到着＆中部満喫","北部＆実家訪問","南部観光＆帰路"];
+
+  return (
+    <div style={{opacity:loaded?1:0,transition:"opacity 0.5s ease",paddingBottom:40}}>
+      {/* Header */}
+      <div style={{background:`linear-gradient(135deg,${c.main} 0%,${c.accent} 100%)`,padding:"24px 16px 0",textAlign:"center",position:"relative",overflow:"hidden",transition:"background 0.4s ease"}}>
+        <div style={{position:"absolute",top:-10,left:-10,fontSize:60,opacity:0.08,transform:"rotate(-20deg)"}}>🌺</div>
+        <div style={{position:"absolute",bottom:-10,right:-10,fontSize:60,opacity:0.08,transform:"rotate(20deg)"}}>🌊</div>
+        <div style={{color:"rgba(255,255,255,0.85)",fontSize:12,letterSpacing:4,fontWeight:600,marginBottom:2}}>2026.06.05 - 06.07</div>
+        <h1 style={{color:"#fff",fontSize:22,fontWeight:900,margin:"0 0 2px",textShadow:"0 2px 8px rgba(0,0,0,0.2)"}}>🌺 沖縄3日間 旅行プラン</h1>
+        <div style={{color:"rgba(255,255,255,0.85)",fontSize:12,marginBottom:14}}>大人3名 · ホテルみゆきビーチ · レンタカー旅</div>
+
+        {/* Day selector */}
+        <div style={{display:"flex",justifyContent:"center",gap:6,marginBottom:12}}>
+          {days.map((d,i)=>(
+            <button key={d} onClick={()=>setActiveDay(d)} style={{
+              background:activeDay===d?"rgba(255,255,255,0.95)":"rgba(255,255,255,0.2)",
+              color:activeDay===d?c.main:"#fff",
+              border:"none",borderRadius:20,padding:"6px 14px",
+              fontWeight:700,fontSize:12,cursor:"pointer",transition:"all 0.3s",
+            }}>
+              {dayEmojis[i]} Day{d} {dayLabels[i]}
+            </button>
+          ))}
+        </div>
+
+        {/* Theme */}
+        <div style={{color:"rgba(255,255,255,0.9)",fontSize:14,fontWeight:700,marginBottom:12}}>
+          {dayEmojis[activeDay-1]} {dayThemes[activeDay-1]}
+        </div>
+
+        {/* Tab bar */}
+        <div style={{display:"flex",justifyContent:"center",gap:4}}>
+          {[["schedule","📋 スケジュール"],["map","🗺️ 地図"],["cost","💰 費用"]].map(([tab,label])=>(
+            <button key={tab} onClick={()=>setActiveTab(tab)} style={{
+              background:activeTab===tab?"#fff":"rgba(255,255,255,0.2)",
+              color:activeTab===tab?c.main:"#fff",
+              border:"none",borderRadius:"12px 12px 0 0",
+              padding:"8px 16px 12px",fontWeight:700,fontSize:12,cursor:"pointer",transition:"all 0.2s",
+            }}>{label}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* Content */}
+      <div style={{maxWidth:640,margin:"0 auto",padding:"16px 16px 0"}}>
+        {activeTab==="schedule"&&<ScheduleView activeDay={activeDay}/>}
+        {activeTab==="map"&&<MapView activeDay={activeDay}/>}
+        {activeTab==="cost"&&<CostView/>}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
